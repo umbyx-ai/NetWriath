@@ -1,15 +1,15 @@
 # NetWriath 👻
 
-**NetWriath** is a high-speed, automated reconnaissance framework for cybersecurity professionals. It orchestrates industry-standard discovery tools to map out a target's digital footprint in seconds.
+**NetWriath** is a high-speed, automated reconnaissance framework designed to map out a target's digital footprint in seconds. It orchestrates industry-standard security tools into a single, stylized dashboard.
 
 ## 🛠️ Tech Stack
-- **Python:** The "Brain" of the framework. Handles orchestration, user input, CLI arguments, and the stylized terminal interface.
-- **Go (Golang):** Powering the high-performance discovery engines (`subfinder`, `httpx`, `dnsx`, `naabu`).
-- **PowerShell:** Automates the entire installation and dependency management process for Windows systems.
+- **Python:** The "Brain" of the framework. Handles mission control, CLI arguments, and the stylized UI.
+- **Go (Golang):** Powering the high-performance discovery engines (`subfinder`, `dnsx`, `httpx`, `naabu`).
+- **PowerShell:** Automates the environment setup and dependency management for Windows.
 
 ---
 
-## 🚀 Quick Start (Windows)
+## 🚀 Installation (Windows)
 
 1. **Clone & Enter:**
    ```powershell
@@ -22,36 +22,36 @@
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
    ```
 
-3. **Install Dependencies:**
+3. **Install Tools:**
    ```powershell
    .\setup.ps1
    ```
-   *Note: Restart your terminal after the setup finishes.*
 
-4. **Run NetWriath:**
+4. **Launch:**
    ```powershell
    py recon.py
    ```
 
 ---
 
-## 🏁 Usage
-- **Interactive Mode:** Run `py recon.py` and follow the mission control dashboard.
-- **Automated Mode:** `py recon.py -d target.com --full` (Runs all phases 1 through 4).
-- **Data Management:** Use Option [7] in the menu to purge all previous scan data.
+## 🗺️ Roadmap: The 6 Phases
+
+- [x] **Phase 1: Subdomain Discovery** (`subfinder`)  
+  Identifies thousands of hidden subdomains using passive and active sources.
+- [x] **Phase 2: IP Resolution** (`dnsx`)  
+  Maps every discovered subdomain to its corresponding IP address.
+- [x] **Phase 3: Live Web Filtering** (`httpx`)  
+  Probes subdomains to identify which ones are hosting active web servers.
+- [x] **Phase 4: Port Scanning** (`naabu`)  
+  Scans targets for the top 100 open ports and identifies common services.
+- [ ] **Phase 5: Visual Recon** (Roadmap)  
+  Automated screenshots of every live web server found.
+- [ ] **Phase 6: Reporting** (Roadmap)  
+  Generation of a unified Markdown/HTML report of all findings.
 
 ---
-
-## 🗺️ Roadmap
-- [x] Phase 1: Subdomain Discovery (`subfinder`)
-- [x] Phase 2: IP Resolution & DNS Mapping (`dnsx`)
-- [x] Phase 3: Live Web Filtering (`httpx`)
-- [x] Phase 4: Automated Port Scanning & Service ID (`naabu`)
-- [ ] Phase 5: Visual Recon (Screenshots)
-- [ ] Phase 6: Reporting
-
----
-*Created by [umbyx-ai](https://github.com/umbyx-ai)* 👻
 
 ## ⚠️ Disclaimer
-Educational and authorized testing only. Obtain explicit permission before scanning any target.
+NetWriath is intended for educational and authorized security testing only. Always obtain explicit permission before scanning any target. The author is not responsible for any misuse.
+
+*Created by [umbyx-ai](https://github.com/umbyx-ai)* 👻
