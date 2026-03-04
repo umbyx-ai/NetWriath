@@ -32,7 +32,8 @@ $goTools = @(
     "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest",
     "github.com/projectdiscovery/httpx/cmd/httpx@latest",
     "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest",
-    "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
+    "github.com/projectdiscovery/dnsx/cmd/dnsx@latest",
+    "github.com/sensepost/gowitness@latest"
 )
 
 foreach ($toolPath in $goTools) {

@@ -44,7 +44,7 @@
   Probes subdomains to identify which ones are hosting active web servers.
 - [x] **Phase 4: Port Scanning** (`naabu`)  
   Scans targets for the top 100 open ports and identifies common services.
-- [ ] **Phase 5: Visual Recon** (Roadmap)  
+- [x] **Phase 5: Visual Recon** (`gowitness`)  
   Automated screenshots of every live web server found.
 - [ ] **Phase 6: Reporting** (Roadmap)  
   Generation of a unified Markdown/HTML report of all findings.
