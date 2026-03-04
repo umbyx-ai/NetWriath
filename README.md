@@ -1,10 +1,10 @@
-# NetWraith 👻
+# NetWriath 👻
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
 ![Go](https://img.shields.io/badge/Go-1.20+-00ADD8.svg)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 
-**NetWraith** is a high-speed, automated reconnaissance framework designed for cybersecurity professionals and bug bounty hunters. It orchestrates industry-standard discovery tools to map out a target's digital footprint and identify hidden assets in seconds.
+**NetWriath** is a high-speed, automated reconnaissance framework designed for cybersecurity professionals and bug bounty hunters. It orchestrates industry-standard discovery tools to map out a target's digital footprint and identify hidden assets in seconds.
 
 ---
 
@@ -30,9 +30,9 @@ Ensure you have the following installed:
 Clone the repository and run the automated setup script:
 
 ```powershell
-# Clone the project (Replace <your-username> with your actual GitHub username)
-git clone https://github.com/<your-username>/NetWraith.git
-cd NetWraith
+# Clone the project
+git clone https://github.com/umbyx-ai/NetWriath.git
+cd NetWriath
 
 # Enable script execution (Required for Windows)
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
@@ -59,7 +59,7 @@ py recon.py
 
 ## 📂 Project Structure
 ```text
-NetWraith/
+NetWriath/
 ├── recon.py          # The main orchestrator (Mission Control)
 ├── setup.ps1         # Automatic tool installer
 ├── README.md         # Documentation
@@ -86,7 +86,7 @@ NetWraith/
 Contributions are welcome! If you have ideas for new features or improvements, feel free to open an issue or submit a pull request.
 
 ## ⚠️ Disclaimer
-NetWraith is intended for educational and authorized security testing purposes only. The author is not responsible for any misuse of this tool. Always obtain explicit permission before testing any target.
+NetWriath is intended for educational and authorized security testing purposes only. The author is not responsible for any misuse of this tool. Always obtain explicit permission before testing any target.
 
 ---
-*Created by [Your Name/Handle]* 👻
+*Created by [umbyx-ai](https://github.com/umbyx-ai)* 👻

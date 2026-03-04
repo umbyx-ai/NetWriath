@@ -1,7 +1,7 @@
-# NetWraith Setup Script for Windows
+# NetWriath Setup Script for Windows
 # This script installs the necessary tools for an automated recon framework.
 
-Write-Host "--- Starting NetWraith Setup ---" -ForegroundColor Cyan
+Write-Host "--- Starting NetWriath Setup ---" -ForegroundColor Cyan
 
 # 1. Check/Install Winget tools (Python, Go, Nmap, Git)
 $tools = @{
