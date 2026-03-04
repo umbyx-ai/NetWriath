@@ -114,7 +114,6 @@ def find_browser():
 def get_output_dir(target):
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_dir = os.path.join(script_dir, "outputs", target)
-    
     if os.path.exists(output_dir):
         ov = input(f"\n    {Fore.YELLOW}[?] Target folder exists. Overwrite? (y/n): ").lower()
         if ov == 'y':
@@ -220,6 +219,61 @@ def phase_5(target, output_dir, bin_path):
             return True
     return False
 
+def phase_6(target, output_dir):
+    report_file = os.path.join(output_dir, "Final_Summary.txt")
+    spinner = Spinner("Compiling results")
+    spinner.start()
+    
+    try:
+        with open(report_file, "w", encoding="utf-8") as r:
+            r.write("="*50 + "\n")
+            r.write(f"          NETWRIATH RECON REPORT: {target}\n")
+            r.write("="*50 + "\n")
+            r.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+            
+            # --- DATA SUMMARY ---
+            def count_lines(fname):
+                p = os.path.join(output_dir, fname)
+                return len(open(p, encoding="utf-8").readlines()) if os.path.exists(p) else 0
+
+            r.write(f"[STATISTICS]\n")
+            r.write(f"- Total Subdomains: {count_lines('subdomains.txt')}\n")
+            r.write(f"- Resolved IPs:     {count_lines('resolved_ips.txt')}\n")
+            r.write(f"- Live Web Servers: {count_lines('live_sites.txt')}\n")
+            r.write(f"- Open Ports Found: {count_lines('open_ports.txt')}\n")
+            
+            # Screenshots
+            ss_dir = os.path.join(output_dir, "screenshots")
+            ss_count = len(os.listdir(ss_dir)) if os.path.exists(ss_dir) else 0
+            r.write(f"- Screenshots:      {ss_count}\n\n")
+            
+            # --- ASSET DETAILS ---
+            r.write("-"*50 + "\n")
+            r.write("[PHASE 2: RESOLVED ASSETS (Domain/IP)]\n")
+            p2 = os.path.join(output_dir, "resolved_ips.txt")
+            if os.path.exists(p2):
+                with open(p2, encoding="utf-8") as f: r.write(f.read())
+            else: r.write("No IP resolution data found.\n")
+            
+            r.write("\n" + "-"*50 + "\n")
+            r.write("[PHASE 4: DISCOVERED PORTS (Port/Service)]\n")
+            p4 = os.path.join(output_dir, "open_ports.txt")
+            if os.path.exists(p4):
+                with open(p4, encoding="utf-8") as f: r.write(f.read())
+            else: r.write("No port scanning data found.\n")
+            
+            r.write("\n" + "="*50 + "\n")
+            r.write("          HAPPY HUNTING - END OF REPORT\n")
+            r.write("="*50 + "\n")
+            
+        spinner.stop()
+        print(f"{Fore.GREEN}[+] Phase 6 Complete! Report saved to: {report_file}")
+        return True
+    except Exception as e:
+        spinner.stop()
+        print(f"{Fore.RED}[!] Failed to generate report: {e}")
+        return False
+
 def clear_outputs():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     output_path = os.path.join(script_dir, "outputs")
@@ -240,15 +294,16 @@ def display_menu():
     print(f"    {Fore.CYAN}┌──────────────────────────────────────────────────┐")
     print(f"    {Fore.CYAN}│ {Fore.YELLOW}{'MISSION CONTROL DASHBOARD'.center(48)} {Fore.CYAN}│")
     print(f"    {Fore.CYAN}├──────────────────────────────────────────────────┤")
-    print(f"    {Fore.CYAN}│ {Fore.WHITE}[0] Full Recon Mission (Phases 1 -> 5)           {Fore.CYAN}│")
+    print(f"    {Fore.CYAN}│ {Fore.WHITE}[0] Full Recon Mission (Phases 1 -> 6)           {Fore.CYAN}│")
     print(f"    {Fore.CYAN}│ {Fore.WHITE}[1] Phase 1: Subdomain Discovery                 {Fore.CYAN}│")
     print(f"    {Fore.CYAN}│ {Fore.WHITE}[2] Phase 2: IP Resolution                       {Fore.CYAN}│")
     print(f"    {Fore.CYAN}│ {Fore.WHITE}[3] Phase 3: Live Web Filtering                  {Fore.CYAN}│")
     print(f"    {Fore.CYAN}│ {Fore.WHITE}[4] Phase 4: Port Scanning                       {Fore.CYAN}│")
     print(f"    {Fore.CYAN}│ {Fore.WHITE}[5] Phase 5: Visual Recon (Screenshots)          {Fore.CYAN}│")
+    print(f"    {Fore.CYAN}│ {Fore.WHITE}[6] Phase 6: Generate Summary Report             {Fore.CYAN}│")
     print(f"    {Fore.CYAN}├──────────────────────────────────────────────────┤")
-    print(f"    {Fore.CYAN}│ {Fore.WHITE}[6] Clear All Scan Data                          {Fore.CYAN}│")
-    print(f"    {Fore.CYAN}│ {Fore.RED}[7] Exit Program                                 {Fore.CYAN}│")
+    print(f"    {Fore.CYAN}│ {Fore.WHITE}[7] Clear All Scan Data                          {Fore.CYAN}│")
+    print(f"    {Fore.CYAN}│ {Fore.RED}[8] Exit Program                                 {Fore.CYAN}│")
     print(f"    {Fore.CYAN}└──────────────────────────────────────────────────┘")
 
 def main():
@@ -270,17 +325,18 @@ def main():
         phase_3(target, output_dir, deps["httpx"])
         phase_4(target, output_dir, deps["naabu"])
         if deps["gowitness"]: phase_5(target, output_dir, deps["gowitness"])
+        phase_6(target, output_dir)
         print(f"{Fore.GREEN}[+] Full scan completed.")
         return
     while True:
         display_menu()
         choice = input(f"\n    {Fore.CYAN}NetWriath > ").strip()
-        if choice == '7': break
-        elif choice == '6':
+        if choice == '8': break
+        elif choice == '7':
             clear_outputs()
             time.sleep(1)
             continue
-        elif choice in ['0', '1', '2', '3', '4', '5']:
+        elif choice in ['0', '1', '2', '3', '4', '5', '6']:
             target = input(f"\n    {Fore.WHITE}[?] Enter Target Domain: ").strip()
             if not target: continue
             output_dir = get_output_dir(target)
@@ -290,6 +346,7 @@ def main():
                 phase_3(target, output_dir, deps["httpx"])
                 phase_4(target, output_dir, deps["naabu"])
                 if deps["gowitness"]: phase_5(target, output_dir, deps["gowitness"])
+                phase_6(target, output_dir)
             elif choice == '1': phase_1(target, output_dir, deps["subfinder"])
             elif choice == '2': phase_2(target, output_dir, deps["dnsx"])
             elif choice == '3': phase_3(target, output_dir, deps["httpx"])
@@ -297,6 +354,7 @@ def main():
             elif choice == '5':
                 if deps["gowitness"]: phase_5(target, output_dir, deps["gowitness"])
                 else: print(f"    {Fore.RED}[!] gowitness not installed.")
+            elif choice == '6': phase_6(target, output_dir)
             cont = input(f"\n    {Fore.YELLOW}[?] Continue? (y/n): ").lower()
             if cont != 'y': break
         else: print(f"    {Fore.RED}[!] Invalid choice.")
