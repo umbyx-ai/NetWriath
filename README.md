@@ -9,10 +9,11 @@
 ---
 
 ## 🚀 Features
-- **Fast Subdomain Discovery:** Leveraging `subfinder` to identify thousands of subdomains using passive and active sources.
+- **Interactive Mission Control:** A stylish, menu-driven dashboard to run specific scan phases or full missions.
+- **Fast Subdomain Discovery:** Leveraging `subfinder` to identify thousands of subdomains.
+- **Live Web Filtering:** Integrated `httpx` support to identify active web servers.
 - **Smart Output Management:** Results are neatly organized by target domain in a dedicated `outputs/` folder.
-- **Robust Error Handling:** Generates detailed `error_log.txt` with troubleshooting steps if a scan fails.
-- **Interactive UI:** A stylized terminal interface with a progress spinner and color-coded status messages.
+- **Robust Error Handling:** Generates detailed `error_log.txt` if a scan fails.
 - **Privacy First:** Built-in `.gitignore` ensures your sensitive scan results are never pushed to version control.
 
 ---
@@ -26,11 +27,11 @@ Ensure you have the following installed:
 - [Git](https://git-scm.com/downloads)
 
 ### 2. Setup
-Clone the repository and run the automated setup script to install all necessary discovery tools:
+Clone the repository and run the automated setup script:
 
 ```powershell
-# Clone the project
-git clone https://github.com/YOUR_USERNAME/NetWraith.git
+# Clone the project (Replace <your-username> with your actual GitHub username)
+git clone https://github.com/<your-username>/NetWraith.git
 cd NetWraith
 
 # Enable script execution (Required for Windows)
@@ -50,8 +51,8 @@ Start a new reconnaissance mission by running the "Brain" of the framework:
 py recon.py
 ```
 
-1. Enter your target domain (e.g., `google.com`) when prompted.
-2. Watch NetWraith go to work with real-time status updates.
+1. Enter your target domain when prompted.
+2. Use the **Mission Control Menu** to select your scan phase.
 3. Check the `outputs/` folder for your results.
 
 ---
@@ -59,13 +60,14 @@ py recon.py
 ## 📂 Project Structure
 ```text
 NetWraith/
-├── recon.py          # The main orchestrator (The Brain)
+├── recon.py          # The main orchestrator (Mission Control)
 ├── setup.ps1         # Automatic tool installer
 ├── README.md         # Documentation
 ├── .gitignore        # Keeps your outputs private
 └── outputs/          # Scan results (auto-generated)
     └── target.com/
         ├── subdomains.txt
+        ├── live_sites.txt
         └── error_log.txt
 ```
 
@@ -73,7 +75,7 @@ NetWraith/
 
 ## 🗺️ Roadmap
 - [x] Phase 1: High-speed Subdomain Discovery
-- [ ] Phase 2: Live Web Server Filtering (`httpx`)
+- [x] Phase 2: Live Web Server Filtering (`httpx`)
 - [ ] Phase 3: Automated Port Scanning (`naabu`)
 - [ ] Phase 4: Visual Recon (Automated Screenshots)
 - [ ] Phase 5: Markdown/HTML Report Generation
