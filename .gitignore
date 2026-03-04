@@ -1,0 +1,10 @@
+# Ignore scan results
+outputs/
+
+# Ignore Python caches
+__pycache__/
+*.pyc
+
+# Ignore local tool binary folders
+go/
+bin/
