@@ -3,8 +3,9 @@
 **NetWriath** is a high-speed, automated reconnaissance framework for cybersecurity professionals. It orchestrates industry-standard discovery tools to map out a target's digital footprint in seconds.
 
 ## 🛠️ Tech Stack
-- **Python:** Orchestration, Mission Control, and Stylized UI.
-- **Go (Golang):** Powering the core high-performance discovery tools (`subfinder`, `httpx`).
+- **Python:** The "Brain" of the framework. Handles orchestration, user input, CLI arguments, and the stylized terminal interface.
+- **Go (Golang):** Powering the high-performance discovery engines (`subfinder`, `httpx`). All core tools are built in Go for maximum speed.
+- **PowerShell:** Automates the entire installation and dependency management process for Windows systems.
 
 ---
 
