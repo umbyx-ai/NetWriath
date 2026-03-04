@@ -1,49 +1,60 @@
-# NetWriath
-=======
 # NetWraith 👻
 
-A modular, automated reconnaissance framework for cybersecurity professionals. NetWraith orchestrates high-speed discovery tools to map out a target's digital footprint and identify hidden assets.
+![Python](https://img.shields.io/badge/Python-3.x-blue.svg)
+![Go](https://img.shields.io/badge/Go-1.20+-00ADD8.svg)
+![License](https://img.shields.io/badge/License-MIT-green.svg)
+
+**NetWraith** is a high-speed, automated reconnaissance framework designed for cybersecurity professionals and bug bounty hunters. It orchestrates industry-standard discovery tools to map out a target's digital footprint and identify hidden assets in seconds.
+
+---
 
 ## 🚀 Features
-- **Subdomain Discovery:** Uses `subfinder` to identify thousands of subdomains.
-- **Automated Logging:** Detailed `error_log.txt` generated if a scan fails.
-- **Modular Output:** Results are organized by target domain in the `outputs/` folder.
-- **Live Status:** Interactive UI with a progress spinner.
+- **Fast Subdomain Discovery:** Leveraging `subfinder` to identify thousands of subdomains using passive and active sources.
+- **Smart Output Management:** Results are neatly organized by target domain in a dedicated `outputs/` folder.
+- **Robust Error Handling:** Generates detailed `error_log.txt` with troubleshooting steps if a scan fails.
+- **Interactive UI:** A stylized terminal interface with a progress spinner and color-coded status messages.
+- **Privacy First:** Built-in `.gitignore` ensures your sensitive scan results are never pushed to version control.
 
-## 📋 Prerequisites (Windows)
-Before running the setup, ensure you have the following installed:
-- [Python 3.x](https://www.python.org/downloads/)
-- [Go (Golang)](https://go.dev/doc/install)
-- [Git](https://git-scm.com/downloads)
+---
 
 ## 🛠️ Installation
 
-1. **Clone the Repository:**
-   ```powershell
-   git clone https://github.com/YOUR_USERNAME/NetWraith.git
-   cd NetWraith
-   ```
+### 1. Prerequisites (Windows)
+Ensure you have the following installed:
+- [Python 3.10+](https://www.python.org/downloads/)
+- [Go (Golang)](https://go.dev/doc/install)
+- [Git](https://git-scm.com/downloads)
 
-2. **Enable Script Execution:**
-   Windows restricts PowerShell scripts by default. Run this to allow the setup script:
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-   ```
+### 2. Setup
+Clone the repository and run the automated setup script to install all necessary discovery tools:
 
-3. **Run the Setup Script:**
-   This script will automatically install the necessary discovery tools via Go.
-   ```powershell
-   .\setup.ps1
-   ```
-   *Note: You may need to restart your terminal after the setup completes.*
+```powershell
+# Clone the project
+git clone https://github.com/YOUR_USERNAME/NetWraith.git
+cd NetWraith
+
+# Enable script execution (Required for Windows)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+
+# Run the installer
+.\setup.ps1
+```
+
+---
 
 ## 🏁 Usage
 
-To start a new reconnaissance mission:
+Start a new reconnaissance mission by running the "Brain" of the framework:
+
 ```powershell
 py recon.py
 ```
-Simply enter the target domain (e.g., `google.com`) when prompted.
+
+1. Enter your target domain (e.g., `google.com`) when prompted.
+2. Watch NetWraith go to work with real-time status updates.
+3. Check the `outputs/` folder for your results.
+
+---
 
 ## 📂 Project Structure
 ```text
@@ -51,12 +62,29 @@ NetWraith/
 ├── recon.py          # The main orchestrator (The Brain)
 ├── setup.ps1         # Automatic tool installer
 ├── README.md         # Documentation
+├── .gitignore        # Keeps your outputs private
 └── outputs/          # Scan results (auto-generated)
     └── target.com/
         ├── subdomains.txt
         └── error_log.txt
 ```
 
+---
+
+## 🗺️ Roadmap
+- [x] Phase 1: High-speed Subdomain Discovery
+- [ ] Phase 2: Live Web Server Filtering (`httpx`)
+- [ ] Phase 3: Automated Port Scanning (`naabu`)
+- [ ] Phase 4: Visual Recon (Automated Screenshots)
+- [ ] Phase 5: Markdown/HTML Report Generation
+
+---
+
+## 🤝 Contributing
+Contributions are welcome! If you have ideas for new features or improvements, feel free to open an issue or submit a pull request.
+
 ## ⚠️ Disclaimer
-This tool is for educational and authorized security testing purposes only. Never use this tool on targets you do not have explicit permission to test.
->>>>>>> c7a2e25 (Initial commit: NetWraith Alpha)
+NetWraith is intended for educational and authorized security testing purposes only. The author is not responsible for any misuse of this tool. Always obtain explicit permission before testing any target.
+
+---
+*Created by [Your Name/Handle]* 👻
