@@ -9,12 +9,13 @@
 ---
 
 ## 🚀 Features
-- **Interactive Mission Control:** A stylish, menu-driven dashboard to run specific scan phases or full missions.
+- **Interactive Mission Control:** A stylish, menu-driven dashboard to run specific scan phases or manage multiple targets.
+- **Automated Mode:** Run full reconnaissance missions directly from the command line for fast results.
 - **Fast Subdomain Discovery:** Leveraging `subfinder` to identify thousands of subdomains.
-- **Live Web Filtering:** Integrated `httpx` support to identify active web servers.
-- **Smart Output Management:** Results are neatly organized by target domain in a dedicated `outputs/` folder.
-- **Robust Error Handling:** Generates detailed `error_log.txt` if a scan fails.
-- **Privacy First:** Built-in `.gitignore` ensures your sensitive scan results are never pushed to version control.
+- **Live Web Filtering:** Integrated `httpx` support to identify active web servers with status codes.
+- **Performance Tracking:** Real-time timers tell you exactly how long each phase takes to complete.
+- **Robust Error Handling:** Generates detailed `error_log.txt` with timestamps for troubleshooting.
+- **Privacy First:** Built-in `.gitignore` ensures your sensitive scan results are never pushed to GitHub.
 
 ---
 
@@ -45,15 +46,24 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
 
 ## 🏁 Usage
 
-Start a new reconnaissance mission by running the "Brain" of the framework:
+NetWriath supports two modes of operation:
 
+### Option A: Interactive Dashboard (Recommended)
+Simply run the script and follow the on-screen menu:
 ```powershell
 py recon.py
 ```
 
-1. Enter your target domain when prompted.
-2. Use the **Mission Control Menu** to select your scan phase.
-3. Check the `outputs/` folder for your results.
+### Option B: Automated Fast Scan
+Skip the menu and run a full reconnaissance mission immediately:
+```powershell
+py recon.py -d target.com --full
+```
+
+### Options:
+- `-d, --domain`: Specify the target domain directly.
+- `--full`: Automatically run all scan phases.
+- `-h, --help`: Show the help menu.
 
 ---
 
