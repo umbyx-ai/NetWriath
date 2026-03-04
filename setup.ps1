@@ -31,7 +31,8 @@ Write-Host "Installing specialized recon tools via Go (this may take a minute)..
 $goTools = @(
     "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest",
     "github.com/projectdiscovery/httpx/cmd/httpx@latest",
-    "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
+    "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest",
+    "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
 )
 
 foreach ($toolPath in $goTools) {

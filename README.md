@@ -4,7 +4,7 @@
 
 ## 🛠️ Tech Stack
 - **Python:** The "Brain" of the framework. Handles orchestration, user input, CLI arguments, and the stylized terminal interface.
-- **Go (Golang):** Powering the high-performance discovery engines (`subfinder`, `httpx`). All core tools are built in Go for maximum speed.
+- **Go (Golang):** Powering the high-performance discovery engines (`subfinder`, `httpx`, `dnsx`, `naabu`).
 - **PowerShell:** Automates the entire installation and dependency management process for Windows systems.
 
 ---
@@ -36,17 +36,19 @@
 ---
 
 ## 🏁 Usage
-- **Interactive Mode:** Run `py recon.py` and follow the menu.
-- **Automated Mode:** `py recon.py -d target.com --full`
+- **Interactive Mode:** Run `py recon.py` and follow the mission control dashboard.
+- **Automated Mode:** `py recon.py -d target.com --full` (Runs all phases 1 through 4).
+- **Data Management:** Use Option [7] in the menu to purge all previous scan data.
 
 ---
 
 ## 🗺️ Roadmap
-- [x] Phase 1: Subdomain Discovery
-- [x] Phase 2: Live Web Filtering
-- [ ] Phase 3: Automated Port Scanning
-- [ ] Phase 4: Visual Recon
-- [ ] Phase 5: Reporting
+- [x] Phase 1: Subdomain Discovery (`subfinder`)
+- [x] Phase 2: IP Resolution & DNS Mapping (`dnsx`)
+- [x] Phase 3: Live Web Filtering (`httpx`)
+- [x] Phase 4: Automated Port Scanning & Service ID (`naabu`)
+- [ ] Phase 5: Visual Recon (Screenshots)
+- [ ] Phase 6: Reporting
 
 ---
 *Created by [umbyx-ai](https://github.com/umbyx-ai)* 👻
