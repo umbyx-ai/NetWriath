@@ -1,75 +1,59 @@
 # NetWriath 👻
 
-**NetWriath** is a complete, high-speed reconnaissance framework designed for cybersecurity professionals and bug bounty hunters. It automates the entire discovery process—from subdomain mapping to visual evidence and final reporting—all within a single, stylized dashboard.
-
-## 🛠️ Tech Stack
-- **Python:** The "Orchestrator." Powers the Mission Control Dashboard, logic flow, and stylized terminal UI.
-- **Go (Golang):** The "Engine." Powering high-performance discovery tools (`subfinder`, `dnsx`, `httpx`, `naabu`, `gowitness`).
-- **PowerShell:** The "Installer." Automates environment setup and dependency management for Windows.
+**NetWriath** is a professional, high-speed reconnaissance framework designed for rapid digital footprinting and infrastructure mapping. It automates the discovery lifecycle through a streamlined tactical interface, providing security researchers with consolidated, actionable intelligence in seconds.
 
 ---
 
-## 🚀 Quick Start (Windows)
+## 🚀 Installation
 
-1. **Clone & Enter:**
-   ```powershell
-   git clone https://github.com/umbyx-ai/NetWriath.git
-   cd NetWriath
-   ```
+### 1. Prerequisites
+Ensure the following tools are accessible in your system path:
+- [Git](https://git-scm.com/downloads) (Includes **Git Bash** for Windows)
+- [Subfinder](https://github.com/projectdiscovery/subfinder)
+- [Dnsx](https://github.com/projectdiscovery/dnsx)
+- [Httpx](https://github.com/projectdiscovery/httpx)
+- [Naabu](https://github.com/projectdiscovery/naabu)
 
-2. **Enable Scripts:**
-   ```powershell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-   ```
+### 2. Deployment
+```bash
+# Clone the repository
+git clone https://github.com/umbyx-ai/NetWriath.git
+cd NetWriath
 
-3. **Automated Setup:**
-   Run the installer to download all necessary Go discovery tools:
-   ```powershell
-   .\setup.ps1
-   ```
-
-4. **Launch Mission Control:**
-   ```powershell
-   py recon.py
-   ```
+# Initialize environment
+bash setup.sh
+```
 
 ---
 
 ## 🏁 Usage
-
-NetWriath is built for flexibility and speed:
-
-### Interactive Dashboard
-Launch the Mission Control Dashboard to run specific phases, manage targets, or clear scan data:
-```powershell
-py recon.py
+Execute the main controller to enter the tactical dashboard:
+```bash
+bash netwriath.sh
 ```
 
-### Automated Full Scan
-Bypass the menu and run a complete end-to-end reconnaissance mission:
-```powershell
-py recon.py -d target.com --full
-```
+### Dashboard Operations:
+- **[1] Deploy Mission:** Executes the full automated reconnaissance chain.
+- **[2] Purge Database:** Irreversibly deletes all stored scan results.
+- **[3] Disconnect:** Safely terminates the operational session.
 
 ---
 
-## 🗺️ Roadmap
-- [x] **Phase 1: Subdomain Discovery** (`subfinder`)  
-  Passive and active enumeration of the target's digital footprint.
-- [x] **Phase 2: IP Resolution** (`dnsx`)  
-  High-speed DNS mapping of every discovered asset.
-- [x] **Phase 3: Live Web Filtering** (`httpx`)  
-  Identification of active web servers and service status.
-- [x] **Phase 4: Port Scanning** (`naabu`)  
-  Automated port discovery and common service identification.
-- [x] **Phase 5: Visual Recon** (`gowitness`)  
-  Automated screenshot capturing of all discovered web interfaces.
-- [x] **Phase 6: Consolidated Reporting** (NetWriath Engine)  
-  Generation of a human-readable `Final_Summary.txt` report.
+## 🗺️ Roadmap: Operational Phases
+- [x] **Phase 1: Subdomain Discovery**  
+  Passive and active enumeration of the target's DNS landscape.
+- [x] **Phase 2: Primary IP Resolution**  
+  Targeted identification of the primary infrastructure host.
+- [x] **Phase 3: Live Web Filtering**  
+  Validation of active HTTP/HTTPS endpoints across the discovered surface.
+- [x] **Phase 4: Server Port Scanning**  
+  Surgical port inventory and service state analysis of the primary host.
+- [x] **Phase 5: Synthesis & Reporting**  
+  Consolidation of all discovery data into a structured `Final_Report.md`.
 
 ---
 
 ## ⚠️ Disclaimer
-NetWriath is intended for educational and authorized security testing purposes only. Always obtain explicit permission before scanning any target. The author assumes no liability for misuse of this tool.
+NetWriath is intended strictly for authorized security testing and educational research. The user assumes all responsibility for compliance with local laws. The author assumes no liability for unauthorized use or resulting damages.
 
 *Created by [umbyx-ai](https://github.com/umbyx-ai)* 👻
