@@ -53,7 +53,7 @@ py recon.py -d target.com --full
 
 ---
 
-## 🗺️ Final Roadmap: All Systems GO
+## 🗺️ Roadmap
 - [x] **Phase 1: Subdomain Discovery** (`subfinder`)  
   Passive and active enumeration of the target's digital footprint.
 - [x] **Phase 2: IP Resolution** (`dnsx`)  
