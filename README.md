@@ -1,28 +1,6 @@
 # NetWriath 👻
 
-**NetWriath** is a professional, high-speed reconnaissance framework designed for rapid digital footprinting and infrastructure mapping. It automates the discovery lifecycle through a streamlined tactical interface, providing security researchers with consolidated, actionable intelligence in seconds.
-
----
-
-## 🚀 Installation
-
-### 1. Prerequisites
-Ensure the following tools are accessible in your system path:
-- [Git](https://git-scm.com/downloads) (Includes **Git Bash** for Windows)
-- [Subfinder](https://github.com/projectdiscovery/subfinder)
-- [Dnsx](https://github.com/projectdiscovery/dnsx)
-- [Httpx](https://github.com/projectdiscovery/httpx)
-- [Naabu](https://github.com/projectdiscovery/naabu)
-
-### 2. Deployment
-```bash
-# Clone the repository
-git clone https://github.com/umbyx-ai/NetWriath.git
-cd NetWriath
-
-# Initialize environment
-bash setup.sh
-```
+**NetWriath** is a professional, high-speed reconnaissance framework designed for rapid digital footprinting and infrastructure mapping. It automates the discovery lifecycle through a streamlined tactical interface, providing security researchers with consolidated intelligence in seconds.
 
 ---
 
@@ -48,16 +26,43 @@ bash setup.sh
 
 ---
 
+## 🚀 Installation
+
+NetWriath is natively cross-platform and supports both **Windows** and **Linux** environments.
+
+### 1. Prerequisites
+
+#### **Windows Users**
+Ensure you have the following installed:
+- [Git for Windows](https://git-scm.com/downloads) (Required for **Git Bash**)
+- [Go (Golang)](https://go.dev/doc/install)
+- [Nmap](https://nmap.org/download.html)
+
+#### **Linux Users (Debian/Ubuntu/Kali)**
+Install the base requirements via your package manager:
+```bash
+sudo apt update && sudo apt install git golang nmap -y
+```
+
+### 2. Deployment
+Regardless of your OS, execute the following commands in a **Bash** terminal:
+
+```bash
+# Clone the repository
+git clone https://github.com/umbyx-ai/NetWriath.git
+cd NetWriath
+
+# Run the automated setup (installs Go discovery tools)
+bash setup.sh
+```
+
+---
+
 ## 🏁 Usage
-Execute the main controller to enter the tactical dashboard:
+Launch the tactical dashboard:
 ```bash
 bash netwriath.sh
 ```
-
-### Dashboard Operations:
-- **[1] Deploy Mission:** Executes the full automated reconnaissance chain.
-- **[2] Purge Database:** Irreversibly deletes all stored scan results.
-- **[3] Disconnect:** Safely terminates the operational session.
 
 ---
 
