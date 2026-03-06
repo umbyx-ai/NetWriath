@@ -28,31 +28,33 @@
 
 ## 🚀 Installation
 
-NetWriath is natively cross-platform and supports both **Windows** and **Linux** environments.
+NetWriath is natively cross-platform. Follow the steps below based on your operating system.
 
-### 1. Prerequisites
+### 1. Installation Prerequisites
+These base tools are required to initialize the environment and run the automated setup script.
 
-#### **Windows Users**
-Ensure you have the following installed:
-- [Git for Windows](https://git-scm.com/downloads) (Required for **Git Bash**)
-- [Go (Golang)](https://go.dev/doc/install)
-- [Nmap](https://nmap.org/download.html)
+#### **For Windows Users**
+Before running the setup, ensure you have the following foundation tools:
+1. **Git for Windows:** [Download & Install here](https://git-scm.com/downloads). (Provides **Git Bash**, which is required).
+2. **Go (Golang):** [Download & Install here](https://go.dev/doc/install). 
+3. **Nmap:** [Download & Install here](https://nmap.org/download.html).
 
-#### **Linux Users (Debian/Ubuntu/Kali)**
-Install the base requirements via your package manager:
+#### **For Linux Users (Debian/Ubuntu/Kali)**
+Run the following command to install the necessary foundations:
 ```bash
 sudo apt update && sudo apt install git golang nmap -y
 ```
 
-### 2. Deployment
-Regardless of your OS, execute the following commands in a **Bash** terminal:
+### 2. Deployment & Tool Setup
+Once the prerequisites above are installed, open a **Bash** terminal (Git Bash on Windows) and execute:
 
 ```bash
 # Clone the repository
 git clone https://github.com/umbyx-ai/NetWriath.git
 cd NetWriath
 
-# Run the automated setup (installs Go discovery tools)
+# Run the automated mission-ready setup
+# This installs subfinder, dnsx, httpx, and naabu
 bash setup.sh
 ```
 
