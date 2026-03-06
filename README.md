@@ -48,23 +48,27 @@ sudo apt update && sudo apt install git golang nmap -y
 ### 2. Deployment & Execution
 Follow these steps exactly to configure and launch the framework:
 
-1. **Clone the repository:**
+1. **Open your terminal:**
+   - **Windows:** Open **Git Bash** (Required for shell script compatibility).
+   - **Linux:** Open any standard **Terminal**.
+
+2. **Clone the repository:**
    ```bash
    git clone https://github.com/umbyx-ai/NetWriath.git
    ```
 
-2. **Navigate into the project folder:**
+3. **Navigate into the project folder:**
    ```bash
    cd NetWriath
    ```
 
-3. **Execute the automated tool setup:**
-   *This script must be run from within the NetWriath folder.*
+4. **Execute the automated tool setup:**
+   *Run this command inside the project folder.*
    ```bash
    bash setup.sh
    ```
 
-4. **Launch the tactical dashboard:**
+5. **Launch the tactical dashboard:**
    ```bash
    bash netwriath.sh
    ```
