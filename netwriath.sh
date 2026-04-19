@@ -83,7 +83,7 @@ run_mission() {
     mkdir -p "$TEMP_DIR/port_results"
     
     if [ -s "$TEMP_DIR/unique_ips.txt" ]; then
-        nmap -iL "$TEMP_DIR/unique_ips.txt" -Pn --open -T4 -F -oG "$TEMP_DIR/nmap_raw.txt" > /dev/null 2>&1
+        nmap -iL "$TEMP_DIR/unique_ips.txt" -Pn --open -T4 -p- -oG "$TEMP_DIR/nmap_raw.txt" > /dev/null 2>&1
         
         while read -r line; do
             if echo "$line" | grep -q "Ports:"; then
