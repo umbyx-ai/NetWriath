@@ -13,7 +13,7 @@
  ██║╚██╗██║██╔══╝     ██║   ██║███╗██║██╔══██╗██║██╔══██║   ██║   ██║  ██║
  ██║ ╚████║███████╗   ██║   ╚███╔███╔╝██║  ██║██║██║  ██║   ██║   ██║  ██║
  ╚═╝  ╚═══╝╚══════╝   ╚═╝    ╚══╝╚══╝ ╚═╝  ╚═╝╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝
-  Automated Asset Discovery Framework // v4.6
+  Automated Asset Discovery Framework // v5.7
 
  --------------------------------------------------------------------------
  :: [1] Deploy Mission
@@ -83,9 +83,9 @@ Follow these steps exactly to configure and launch the framework:
 - [x] **Phase 3: Live Web Filtering**  
   Validation of active HTTP/HTTPS endpoints across the discovered surface.
 - [x] **Phase 4: Server Port Scanning**  
-  Surgical port inventory and service state analysis of the primary host.
+  Surgical port inventory and service state analysis via Nmap.
 - [x] **Phase 5: Synthesis & Reporting**  
-  Consolidation of all discovery data into a structured `Final_Report.md`.
+  Consolidation of all discovery data into a structured visual text report.
 
 ---
 

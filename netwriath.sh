@@ -20,7 +20,7 @@ OUTPUT_BASE="$PROJECT_DIR/outputs"
 # --- Helper Functions ---
 
 check_dependencies() {
-    for tool in subfinder dnsx httpx naabu; do
+    for tool in subfinder dnsx httpx nmap; do
         if ! command -v $tool &> /dev/null; then
             echo -e "${YELLOW}[!] Dependency Missing: $tool${NC}"
             exit 1
@@ -53,7 +53,6 @@ run_mission() {
     echo -ne "${YELLOW}[*] Phase 1: Discovery...  ${NC}"
     echo "$TARGET_DOMAIN" > "$TEMP_DIR/subs.txt"
     subfinder -d "$TARGET_DOMAIN" -silent >> "$TEMP_DIR/subs.txt" 2>/dev/null
-    # Clean all outputs immediately
     sed -i 's/\r//' "$TEMP_DIR/subs.txt"
     sort -u "$TEMP_DIR/subs.txt" -o "$TEMP_DIR/subs.txt"
     echo -e "${GREEN}Success${NC}"
@@ -78,79 +77,115 @@ run_mission() {
     httpx -l "$TEMP_DIR/subs.txt" -silent | tr -d '\r' > "$TEMP_DIR/live.txt" 2>/dev/null
     echo -e "${GREEN}Success${NC}"
 
-    # 4. Strict Multi-Target Port Scanning
+    # 4. Port Scanning
     echo -ne "${YELLOW}[*] Phase 4: Inventory...  ${NC}"
     rm -rf "$TEMP_DIR/port_results"
     mkdir -p "$TEMP_DIR/port_results"
     
     if [ -s "$TEMP_DIR/unique_ips.txt" ]; then
-        for ip in $(cat "$TEMP_DIR/unique_ips.txt"); do
-            ip=$(echo "$ip" | tr -d '\r')
-            [ -z "$ip" ] && continue
-            # naabu -verify completes the connection to ensure port is TRULY open
-            # -rate 100 ensures we don't trip firewall 'fake open' protections
-            naabu -host "$ip" -top-ports 100 -verify -rate 100 -silent | tr -d '\r' > "$TEMP_DIR/port_results/$ip.raw" 2>/dev/null
-            if [ -s "$TEMP_DIR/port_results/$ip.raw" ]; then
-                cut -d: -f2 "$TEMP_DIR/port_results/$ip.raw" | sort -un > "$TEMP_DIR/port_results/$ip.txt"
+        nmap -iL "$TEMP_DIR/unique_ips.txt" -Pn --open -T4 -F -oG "$TEMP_DIR/nmap_raw.txt" > /dev/null 2>&1
+        
+        while read -r line; do
+            if echo "$line" | grep -q "Ports:"; then
+                ip=$(echo "$line" | awk '{print $2}')
+                ports=$(echo "$line" | grep -oE "[0-9]+/open" | cut -d/ -f1 | tr '\n' ',' | sed 's/,$//')
+                if [ ! -z "$ports" ]; then
+                    echo "$ports" | tr ',' '\n' > "$TEMP_DIR/port_results/$ip.txt"
+                fi
             fi
-        done
+        done < "$TEMP_DIR/nmap_raw.txt"
     fi
     echo -e "${GREEN}Success${NC}"
 
     # 5. Data Synthesis & Reporting
     echo -ne "${YELLOW}[*] Phase 5: Synthesis...  ${NC}"
     {
-        echo "# NetWriath Recon Report: $TARGET_DOMAIN"
-        echo -e "\n**Date:** $(date)"
-        
-        echo -e "\n## 🌐 Phase 1: Discovered Hostnames"
+        BORDER="================================================================"
+        THIN="  ----------------------------------------------------------------"
+
+        # Header block
+        echo "$BORDER"
+        printf "  NETWRIATH v5.7  //  %s\n" "$TARGET_DOMAIN"
+        printf "  %s\n" "$(date)"
+        echo "$BORDER"
+        echo ""
+
+        # Subdomains
+        echo "  >> SUBDOMAINS"
+        echo "$THIN"
         if [ -s "$TEMP_DIR/subs.txt" ]; then
-            while read -r sub; do echo "- $sub"; done < "$TEMP_DIR/subs.txt"
+            while read -r sub; do
+                echo "     $sub"
+            done < "$TEMP_DIR/subs.txt"
         else
-            echo "No subdomains discovered."
+            echo "     none"
         fi
 
-        echo -e "\n## 📍 Phase 2: Asset Inventory (Hostname/IP)"
-        echo "| Hostname | IP Address |"
-        echo "| --- | --- |"
+        echo ""
+
+        # Resolved Assets — dynamic column padding
+        echo "  >> RESOLVED ASSETS"
+        echo "$THIN"
         if [ -s "$TEMP_DIR/resolved_clean.txt" ]; then
+            max_host=8
             while read -r line; do
-                echo "| $(echo "$line" | cut -d/ -f1) | $(echo "$line" | cut -d/ -f2) |"
+                h=$(echo "$line" | cut -d/ -f1)
+                l=${#h}
+                [ $l -gt $max_host ] && max_host=$l
+            done < "$TEMP_DIR/resolved_clean.txt"
+
+            printf "     %-${max_host}s   IP\n" "HOSTNAME"
+            printf '     '; printf '%0.s-' $(seq 1 $((max_host + 18))); echo ""
+
+            while read -r line; do
+                h=$(echo "$line" | cut -d/ -f1)
+                ip=$(echo "$line" | cut -d/ -f2)
+                printf "     %-${max_host}s   %s\n" "$h" "$ip"
             done < "$TEMP_DIR/resolved_clean.txt"
         else
-            echo "| $TARGET_DOMAIN | null |"
+            echo "     none"
         fi
-        
-        echo -e "\n## ⚡ Phase 3: Active Web Services"
+
+        echo ""
+
+        # Live Hosts
+        echo "  >> LIVE HOSTS"
+        echo "$THIN"
         if [ -s "$TEMP_DIR/live.txt" ]; then
-            while read -r live; do echo "- $live"; done < "$TEMP_DIR/live.txt"
+            while read -r live; do
+                echo "     $live"
+            done < "$TEMP_DIR/live.txt"
         else
-            echo "No active web servers detected."
+            echo "     none"
         fi
-        
-        echo -e "\n## 🔓 Phase 4: Port Inventory (By Host IP)"
+
+        echo ""
+
+        # Open Ports
+        echo "  >> OPEN PORTS"
+        echo "$THIN"
         found_any_port=0
         if [ -d "$TEMP_DIR/port_results" ]; then
             for ip_file in $(ls "$TEMP_DIR/port_results"/*.txt 2>/dev/null | sort -V); do
                 ip_addr=$(basename "$ip_file" .txt)
                 if [ -s "$ip_file" ]; then
                     found_any_port=1
-                    echo -e "\n### Host: $ip_addr"
-                    echo "| Open Port |"
-                    echo "| --- |"
+                    echo "     [ $ip_addr ]"
                     while read -r port; do
                         port_clean=$(echo "$port" | tr -d '\r')
-                        [ ! -z "$port_clean" ] && echo "| $port_clean |"
+                        [ ! -z "$port_clean" ] && echo "       [+] $port_clean"
                     done < "$ip_file"
+                    echo ""
                 fi
             done
         fi
-        
-        if [ $found_any_port -eq 0 ]; then
-            echo -e "\nNo verified open ports discovered across infrastructure."
-        fi
-        
-        echo -e "\n---\n*Generated by NetWriath 👻*"
+        [ $found_any_port -eq 0 ] && echo "     none"
+
+        echo ""
+        echo "$BORDER"
+        echo "  netwriath v5.7 // scan complete"
+        echo "$BORDER"
+
     } > "$REPORT_FILE"
     
     rm -rf "$TEMP_DIR"

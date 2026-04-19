@@ -44,7 +44,6 @@ echo -e "${CYAN}Installing specialized recon tools via Go...${NC}"
 go_tools=(
     "github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest"
     "github.com/projectdiscovery/httpx/cmd/httpx@latest"
-    "github.com/projectdiscovery/naabu/v2/cmd/naabu@latest"
     "github.com/projectdiscovery/dnsx/cmd/dnsx@latest"
     "github.com/sensepost/gowitness@latest"
 )
