@@ -42,7 +42,7 @@ done
 check "confirm y"          "yes" "$(confirm "q" <<<"y" >/dev/null && echo yes || echo no)"
 check "confirm y + CR"     "yes" "$(confirm "q" <<<$'y\r' >/dev/null && echo yes || echo no)"
 check "confirm default no" "no"  "$(confirm "q" <<<"" >/dev/null && echo yes || echo no)"
-check "read_input drops CR" "3"  "$(read_input v <<<$'3\r'; printf '%s' "$v")"
+check "read_input drops CR" "3"  "$(v=""; read_input v <<<$'3\r'; printf '%s' "$v")"
 
 # --- md_cell --------------------------------------------------------------------
 check "md_cell pipe"  'a \| b' "$(md_cell 'a | b')"
