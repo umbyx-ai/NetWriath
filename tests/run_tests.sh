@@ -38,6 +38,12 @@ for bad in ".." "../../NetWriath" "../outputs" "/" "example" "exa mple.com" "-ba
     fi
 done
 
+# --- answers typed or piped from PowerShell (which adds \r) ---------------------
+check "confirm y"          "yes" "$(confirm "q" <<<"y" >/dev/null && echo yes || echo no)"
+check "confirm y + CR"     "yes" "$(confirm "q" <<<$'y\r' >/dev/null && echo yes || echo no)"
+check "confirm default no" "no"  "$(confirm "q" <<<"" >/dev/null && echo yes || echo no)"
+check "read_input drops CR" "3"  "$(read_input v <<<$'3\r'; printf '%s' "$v")"
+
 # --- md_cell --------------------------------------------------------------------
 check "md_cell pipe"  'a \| b' "$(md_cell 'a | b')"
 check "md_cell empty" '-'      "$(md_cell '')"
@@ -111,6 +117,14 @@ check "skipped phase is not 'none'"  "1" "$(grep -c 'Live web services:\*\* not 
 check "ports counted when scanned"   "1" "$(grep -c 'Open ports:\*\* 1$' "$REPORT_FILE")"
 check "temp dir removed"             "no" "$([[ -d "$TEMP_DIR" ]] && echo yes || echo no)"
 
+# Without subfinder (e.g. blocked by Windows) only the domain itself is checked
+SUBFINDER_PROBLEM="blocked"
+setup_target "example.com"
+run_mission > "$TMP/mission2.log" 2>&1
+check "no subfinder: only the target" "example.com" "$(cat "$RAW_DIR/subdomains.txt")"
+check "no subfinder: warned in report" "1" "$(grep -c 'Phase 1 skipped' "$REPORT_FILE")"
+SUBFINDER_PROBLEM=""
+
 # --- setup.sh: broken PATH line from old versions is removed --------------------
 (
     PASS=0; FAIL=0
@@ -124,10 +138,52 @@ check "temp dir removed"             "no" "$([[ -d "$TEMP_DIR" ]] && echo yes ||
     add_path_line "/c/Program Files (x86)/Nmap" > /dev/null
     add_path_line "/c/Program Files (x86)/Nmap" > /dev/null
     check "path line added once" "1" "$(grep -c 'Program Files (x86)/Nmap' "$RC_FILE")"
+
+    # "netwriath" command on Linux/macOS: one line in the rc file, removed by --uninstall
+    OS=linux
+    install_command > /dev/null
+    install_command > /dev/null
+    check "command line added once" "1" "$(grep -c "\"\$PATH:$ROOT/bin\"" "$RC_FILE")"
+    uninstall_command > /dev/null
+    check "command line removed"    "0" "$(grep -c "\"\$PATH:$ROOT/bin\"" "$RC_FILE")"
+    check "other lines kept"        "1" "$(grep -c 'Program Files (x86)/Nmap' "$RC_FILE")"
+
+    # Windows user PATH, on a throwaway registry key (never the real one)
+    if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]] && command -v powershell.exe >/dev/null 2>&1; then
+        export NW_REGKEY="Software\\NetWriathTest$$" NW_NO_BROADCAST=1
+        reg_ps() {  # runs a PowerShell line against the test key
+            NW_VALUE="${2:-}" NW_KIND="${3:-}" powershell.exe -NoProfile -NonInteractive -Command - 2>&1 <<<"$1" | tr -d '\r' | tail -n 1
+        }
+        reg_read='$k = [Microsoft.Win32.Registry]::CurrentUser.OpenSubKey($env:NW_REGKEY); $k.GetValueKind("Path").ToString() + "|" + $k.GetValue("Path", "", [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)'
+        reg_seed='$k = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($env:NW_REGKEY); $k.SetValue("Path", $env:NW_VALUE, [Microsoft.Win32.RegistryValueKind]$env:NW_KIND); $k.Close()'
+        reg_drop='[Microsoft.Win32.Registry]::CurrentUser.DeleteSubKeyTree($env:NW_REGKEY, $false)'
+
+        check "win: add to empty PATH"   "changed"   "$(windows_user_path add 'C:\nw\bin')"
+        check "win: value and type"      'ExpandString|C:\nw\bin' "$(reg_ps "$reg_read")"
+        reg_ps "$reg_seed" '%USERPROFILE%\a;C:\b' ExpandString > /dev/null
+        check "win: add keeps entries"   "changed"   "$(windows_user_path add 'C:\nw\bin')"
+        check "win: %VAR% not expanded"  'ExpandString|%USERPROFILE%\a;C:\b;C:\nw\bin' "$(reg_ps "$reg_read")"
+        check "win: no duplicates"       "unchanged" "$(windows_user_path add 'c:\NW\bin\')"
+        check "win: remove"              "changed"   "$(windows_user_path remove 'C:\nw\bin')"
+        check "win: back to original"    'ExpandString|%USERPROFILE%\a;C:\b' "$(reg_ps "$reg_read")"
+        check "win: remove again"        "unchanged" "$(windows_user_path remove 'C:\nw\bin')"
+        reg_ps "$reg_seed" 'C:\b' String > /dev/null
+        windows_user_path add 'C:\nw\bin' > /dev/null
+        check "win: REG_SZ stays REG_SZ" 'String|C:\b;C:\nw\bin' "$(reg_ps "$reg_read")"
+        reg_ps "$reg_drop" > /dev/null
+    fi
     echo "$PASS $FAIL" > "$TMP/setup_result"
 )
 read -r sub_pass sub_fail < "$TMP/setup_result"
 PASS=$((PASS + sub_pass)); FAIL=$((FAIL + sub_fail))
+
+# --- launchers -------------------------------------------------------------------
+check "launcher works from another folder" "NetWriath v$VERSION" "$(cd "$TMP" && bash "$ROOT/bin/netwriath" --version)"
+check "launcher keeps LF endings"   "0" "$(tr -cd '\r' < "$ROOT/bin/netwriath" | wc -c | tr -d ' ')"
+check "netwriath.cmd has CRLF"      "$(wc -l < "$ROOT/bin/netwriath.cmd" | tr -d ' ')" "$(tr -cd '\r' < "$ROOT/bin/netwriath.cmd" | wc -c | tr -d ' ')"
+if [[ "$OSTYPE" == msys* || "$OSTYPE" == cygwin* ]]; then
+    check "netwriath.cmd works" "NetWriath v$VERSION" "$(cd "$TMP" && cmd.exe //c "$(cygpath -w "$ROOT/bin/netwriath.cmd")" --version | tr -d '\r')"
+fi
 
 echo ""
 echo "Passed: $PASS   Failed: $FAIL"

@@ -6,6 +6,8 @@ resume.cfg
 __pycache__/
 *.pyc
 
-# Ignore local tool binary folders
+# Ignore local tool binary folders (except NetWriath's own launchers)
 go/
-bin/
+bin/*
+!bin/netwriath
+!bin/netwriath.cmd

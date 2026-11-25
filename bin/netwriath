@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# NetWriath launcher for Bash (Linux, macOS, Git Bash): lets you type "netwriath"
+# from any folder. Results are still saved in the project's outputs/ folder.
+self="${BASH_SOURCE[0]}"
+real="$(readlink -f "$self" 2>/dev/null)" && self="$real"   # follow symlinks
+root="$(cd "$(dirname "$self")/.." && pwd)" || exit 1
+exec bash "$root/netwriath.sh" "$@"

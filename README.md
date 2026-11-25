@@ -97,12 +97,29 @@ NetWriath checks the tools before it starts. Each phase reports `Success`, `Warn
    ```bash
    bash setup.sh
    ```
-   It only installs what is missing, so it is safe to run again. It also adds the Go tools folder (and Nmap, on Windows) to your `PATH`. To update subfinder, dnsx and httpx later, use `bash setup.sh --update`.
-4. Open a **new** terminal so it sees the new `PATH`.
-5. Launch NetWriath:
+   It only installs what is missing, so it is safe to run again. It also creates the **`netwriath` command** and adds the Go tools folder (and Nmap, on Windows) to your `PATH`. To update subfinder, dnsx and httpx later, use `bash setup.sh --update`.
+4. Open a **new** terminal. The ones that were already open do not see the new `PATH`.
+5. Launch NetWriath from any folder:
    ```bash
-   bash netwriath.sh
+   netwriath
    ```
+
+### The `netwriath` command
+
+| System | How it works | Where it works |
+|---|---|---|
+| Windows | `setup.sh` adds the project's `bin` folder to your user `PATH`. `bin\netwriath.cmd` runs `netwriath.sh` with Git Bash. | Git Bash, PowerShell, cmd |
+| Linux / macOS | `setup.sh` adds the project's `bin` folder to your `PATH` in `~/.bashrc` (or `~/.zshrc`). | Any terminal |
+
+You can launch it from any folder: the results are always saved in `outputs/` inside the NetWriath folder. Without the command, `bash netwriath.sh` from the project folder still works.
+
+### Uninstall
+
+```bash
+bash setup.sh --uninstall
+```
+
+This removes the `netwriath` command from your `PATH`. Your results, Nmap and the Go tools are not touched. To remove NetWriath completely, also delete its folder.
 
 ---
 
@@ -111,7 +128,7 @@ NetWriath checks the tools before it starts. Each phase reports `Success`, `Warn
 ### Interactive menu
 
 ```bash
-bash netwriath.sh
+netwriath
 ```
 
 - **[1] Deploy Mission** asks for a target. You can type `example.com`, `https://www.example.com/page` or `*.example.com`; NetWriath extracts the domain. Anything that is not a valid domain is rejected.
@@ -121,7 +138,7 @@ bash netwriath.sh
 ### Command line
 
 ```bash
-bash netwriath.sh [options] domain
+netwriath [options] domain
 ```
 
 | Option | Effect |
@@ -136,10 +153,10 @@ bash netwriath.sh [options] domain
 Examples:
 
 ```bash
-bash netwriath.sh --no-ports example.com
+netwriath --no-ports example.com
 ```
 ```bash
-bash netwriath.sh -y --full-ports scanme.nmap.org
+netwriath -y --full-ports scanme.nmap.org
 ```
 
 `scanme.nmap.org` is a host that the Nmap project lets everyone scan for testing. Please do not scan it more than a few times a day.
@@ -180,9 +197,11 @@ subfinder works without configuration, but many of its sources (Shodan, Censys, 
 
 | Problem | Solution |
 |---|---|
+| `netwriath: command not found` / *"no se reconoce como nombre de un cmdlet"* | Open a **new** terminal after `bash setup.sh`. If it still fails, run `bash setup.sh` again from the NetWriath folder, or launch it with `bash netwriath.sh`. |
+| PowerShell asks *"Terminate batch job (Y/N)?"* after Ctrl+C | That is how Windows stops `.cmd` launchers. Answer `Y`. |
 | `subfinder: not installed or not in your PATH` | Run `bash setup.sh` and open a **new** terminal. |
 | `httpx: '/usr/bin/httpx' is the Python httpx client` (Kali) | Kali's `httpx` package is a different program. Install ProjectDiscovery's with `sudo apt install httpx-toolkit` or `bash setup.sh`; NetWriath finds it by itself. |
-| `installed but the system refuses to run it` (Windows 11) | **Smart App Control** or your antivirus is blocking an unsigned program. NetWriath skips the phase that needs it and tells you so in the report. That is a Windows security setting, and NetWriath does not change it. The easiest alternative is to run NetWriath inside **WSL** (Ubuntu or Kali), where it works as on Linux. |
+| `installed but the system refuses to run it` (Windows 11) | **Smart App Control** or your antivirus is blocking an unsigned program. NetWriath skips the phase that needs it and tells you so in the report (without subfinder it only checks the domain you typed; without dnsx it cannot run). Windows decides with an online reputation check that changes over time, so a fresh build is sometimes allowed: `bash setup.sh --update`. That is a Windows security setting, and NetWriath does not change it. The easiest alternative is to run NetWriath inside **WSL** (Ubuntu or Kali), where it works as on Linux. |
 | `nmap: not installed` on Windows, but Nmap is installed | NetWriath looks for it in `C:\Program Files (x86)\Nmap` and `C:\Program Files\Nmap`. If you installed it elsewhere, add that folder to your `PATH`. |
 | `nmap exited with code 1` | Read `logs/nmap.err`. On Windows, Nmap needs **Npcap** ([npcap.com](https://npcap.com)). |
 | Few or no subdomains | Add API keys to subfinder (see above), and check `logs/subfinder.log`. |
@@ -195,7 +214,7 @@ subfinder works without configuration, but many of its sources (Shodan, Censys, 
 bash tests/run_tests.sh
 ```
 
-The tests do not use the network or scan anything; they run the pipeline with fake tools. GitHub Actions runs them on Linux and Windows with every push, together with ShellCheck.
+The tests do not use the network or scan anything; they run the pipeline with fake tools. On Windows they also check the `PATH` changes on a temporary registry key, never on your real `PATH`. GitHub Actions runs them on Linux and Windows with every push, together with ShellCheck.
 
 ---
 

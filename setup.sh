@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# NetWriath setup: installs the tools NetWriath needs (Go, Nmap, subfinder, dnsx, httpx).
-# Works on Linux, macOS and Windows (Git Bash). Safe to run again: it only installs
-# what is missing or broken.
+# NetWriath setup: installs the tools NetWriath needs (Go, Nmap, subfinder, dnsx, httpx)
+# and the "netwriath" command. Works on Linux, macOS and Windows (Git Bash).
+# Safe to run again: it only installs what is missing or broken.
 #
-# Usage: bash setup.sh            install what is missing
-#        bash setup.sh --update   also update subfinder, dnsx and httpx to the latest version
+# Usage: bash setup.sh              install what is missing
+#        bash setup.sh --update     also update subfinder, dnsx and httpx to the latest version
+#        bash setup.sh --uninstall  remove the "netwriath" command (tools and results stay)
 
 if [[ -t 1 ]]; then
     RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'; CYAN=$'\033[0;36m'; NC=$'\033[0m'
@@ -28,6 +29,8 @@ case "$(basename "${SHELL:-bash}")" in
     *)   RC_FILE="$HOME/.bashrc" ;;
 esac
 
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+COMMAND_DIR="$PROJECT_DIR/bin"   # holds the "netwriath" launchers
 MARK="# added by NetWriath setup"
 MIN_GO_MINOR=21   # Go >= 1.21 downloads the newer toolchain the tools need by itself
 UPDATE=0
@@ -58,6 +61,81 @@ add_path_line() {
         printf 'export PATH="$PATH:%s"  %s\n' "$dir" "$MARK" >> "$RC_FILE"
         ok "Added $dir to your PATH in $RC_FILE"
     fi
+}
+
+# Remove the line that add_path_line wrote for a directory
+remove_path_line() {
+    local dir="$1" tmp
+    [[ -f "$RC_FILE" ]] || return 1
+    grep -qF "\"\$PATH:$dir\"  $MARK" "$RC_FILE" || return 1
+    tmp="$RC_FILE.netwriath.tmp"
+    grep -vF "\"\$PATH:$dir\"  $MARK" "$RC_FILE" > "$tmp" && cat "$tmp" > "$RC_FILE"
+    rm -f -- "$tmp"
+}
+
+# windows_user_path add|remove WINDOWS_DIR
+# Edits the PATH of your Windows user (registry HKCU\Environment), so the command
+# also works in PowerShell and cmd. Keeps the value type (REG_EXPAND_SZ), so
+# entries like %USERPROFILE%\... keep working, and tells Windows the PATH changed.
+# Prints "changed" or "unchanged". NW_REGKEY and NW_NO_BROADCAST are for the tests.
+windows_user_path() {
+    NW_ACTION="$1" NW_DIR="$2" NW_REGKEY="${NW_REGKEY:-Environment}" NW_NO_BROADCAST="${NW_NO_BROADCAST:-}" \
+        powershell.exe -NoProfile -NonInteractive -Command - <<'POWERSHELL' 2>&1 | tr -d '\r' \
+        | { grep -E '^(changed|unchanged|ERROR)' || echo "ERROR: no answer from PowerShell"; } | tail -n 1
+$ErrorActionPreference = "Stop"
+try { $key = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($env:NW_REGKEY) } catch { "ERROR $_"; exit 1 }
+$old = [string]$key.GetValue("Path", "", [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+$kind = [Microsoft.Win32.RegistryValueKind]::ExpandString; if ($key.GetValueNames() -contains "Path" -and $key.GetValueKind("Path") -eq [Microsoft.Win32.RegistryValueKind]::String) { $kind = [Microsoft.Win32.RegistryValueKind]::String }
+function Norm([string]$p) { return [Environment]::ExpandEnvironmentVariables($p).TrimEnd("\").ToLowerInvariant() }
+$target = Norm $env:NW_DIR; $parts = $old -split ";"; $present = @($parts | Where-Object { $_ -ne "" -and (Norm $_) -eq $target }).Count -gt 0
+if (($env:NW_ACTION -eq "add" -and $present) -or ($env:NW_ACTION -eq "remove" -and -not $present)) { "unchanged"; exit 0 }
+if ($env:NW_ACTION -eq "add") { if ($old.Trim(";") -eq "") { $new = $env:NW_DIR } else { $new = $old.TrimEnd(";") + ";" + $env:NW_DIR } } else { $new = @($parts | Where-Object { $_ -eq "" -or (Norm $_) -ne $target }) -join ";" }
+try { $key.SetValue("Path", $new, $kind); $key.Close() } catch { "ERROR $_"; exit 1 }
+if (-not $env:NW_NO_BROADCAST) { [Environment]::SetEnvironmentVariable("NETWRIATH_REFRESH", "1", "User"); [Environment]::SetEnvironmentVariable("NETWRIATH_REFRESH", $null, "User") }
+"changed"
+POWERSHELL
+}
+
+# Make "netwriath" available in every new terminal
+install_command() {
+    local result win_dir
+    chmod +x "$COMMAND_DIR/netwriath" 2>/dev/null
+    if [[ $OS == windows ]]; then
+        win_dir="$(cygpath -w "$COMMAND_DIR")"
+        result="$(windows_user_path add "$win_dir")"
+        case "$result" in
+            changed)   ok "Added $win_dir to your Windows PATH: 'netwriath' works in Git Bash, PowerShell and cmd" ;;
+            unchanged) ok "The 'netwriath' command is already in your PATH" ;;
+            *)         err "Could not update your Windows PATH ($result). You can still run: bash netwriath.sh"
+                       WARNINGS=$((WARNINGS + 1)) ;;
+        esac
+    else
+        if grep -qF "\"\$PATH:$COMMAND_DIR\"" "$RC_FILE" 2>/dev/null; then
+            ok "The 'netwriath' command is already in your PATH"
+        else
+            add_path_line "$COMMAND_DIR"
+        fi
+    fi
+}
+
+uninstall_command() {
+    local result
+    printf '%s--- NetWriath uninstall ---%s\n' "$CYAN" "$NC"
+    if [[ $OS == windows ]]; then
+        result="$(windows_user_path remove "$(cygpath -w "$COMMAND_DIR")")"
+        case "$result" in
+            changed)   ok "Removed the 'netwriath' command from your Windows PATH" ;;
+            unchanged) info "The 'netwriath' command was not in your Windows PATH" ;;
+            *)         err "Could not update your Windows PATH ($result)"; exit 1 ;;
+        esac
+    fi
+    if remove_path_line "$COMMAND_DIR"; then
+        ok "Removed the 'netwriath' command from $RC_FILE"
+    elif [[ $OS != windows ]]; then
+        info "The 'netwriath' command was not in $RC_FILE"
+    fi
+    info "subfinder, dnsx, httpx, Nmap and your results in $PROJECT_DIR/outputs were not touched."
+    info "To remove NetWriath completely, delete the folder $PROJECT_DIR"
 }
 
 # Older versions of this script wrote the Windows-style GOPATH into .bashrc
@@ -165,7 +243,7 @@ install_go_tools() {
         fi
         if (( state == 2 && ! UPDATE )); then
             warn "$name is installed but $BLOCKED_MSG."
-            warn "NetWriath will skip the phase that needs it. See 'Troubleshooting' in the README."
+            warn "NetWriath will skip the phase that needs it. A fresh build is sometimes allowed: bash setup.sh --update"
             WARNINGS=$((WARNINGS + 1))
             continue
         fi
@@ -209,7 +287,8 @@ check_httpx_name() {
 main() {
     case "${1:-}" in
         --update) UPDATE=1 ;;
-        -h|--help) sed -n '2,8p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        --uninstall) uninstall_command; exit 0 ;;
+        -h|--help) sed -n '2,9p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         "") ;;
         *) err "Unknown option: $1"; exit 2 ;;
     esac
@@ -222,6 +301,7 @@ main() {
         install_go_tools
         check_httpx_name
     fi
+    install_command
 
     echo ""
     if (( ${#FAILED[@]} > 0 )); then
@@ -234,7 +314,7 @@ main() {
     else
         printf '%s--- Setup complete ---%s\n' "$GREEN" "$NC"
     fi
-    info "Open a NEW terminal (or run: source $RC_FILE) and launch: bash netwriath.sh"
+    info "Open a NEW terminal (the ones already open do not see the change) and type: netwriath"
 }
 
 if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then

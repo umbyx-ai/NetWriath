@@ -4,7 +4,7 @@
 #  Automated asset discovery for authorized engagements
 # ============================================================
 #
-#  Usage: bash netwriath.sh [options] [domain]
+#  Usage: netwriath [options] [domain]   (or: bash netwriath.sh [options] [domain])
 #  Without a domain the interactive menu opens. Run with --help for the options.
 
 VERSION="6.0"
@@ -29,7 +29,7 @@ INCLUDE_CDN=0    # --include-cdn: also scan CDN IPs
 
 # --- Run state ---
 TARGET_DOMAIN=""; TARGET_DIR=""; REPORT_FILE=""; RAW_DIR=""; LOG_DIR=""; TEMP_DIR=""
-HTTPX_BIN=""; HTTPX_PROBLEM=""; NMAP_PROBLEM=""; TOOL_PROBLEM=""
+HTTPX_BIN=""; HTTPX_PROBLEM=""; NMAP_PROBLEM=""; SUBFINDER_PROBLEM=""; TOOL_PROBLEM=""
 WILDCARD=0; PORT_SCAN_DESC=""; CDN_SKIPPED=0
 WEB_DONE=0; PORTS_DONE=0   # 1 when phase 3 / phase 4 actually ran
 NOTES=()
@@ -49,11 +49,20 @@ phase_warn()  { printf '%sWarning%s %s\n' "$YELLOW" "$NC" "$1"; NOTES+=("$1"); }
 phase_fail()  { printf '%sFailed%s %s\n' "$RED" "$NC" "$1"; NOTES+=("$1"); }
 phase_skip()  { printf '%sSkipped%s %s\n' "$GRAY" "$NC" "$1"; }
 
+# read_input VAR -> reads one answer from the user. Drops the "\r" that Windows
+# adds when the answer comes from PowerShell or cmd. Fails at end of input.
+read_input() {
+    local line rc
+    read -r line; rc=$?
+    printf -v "$1" '%s' "${line%$'\r'}"
+    return $rc
+}
+
 # confirm "question" -> success only if the answer is y/yes
 confirm() {
     local answer
     printf '%s%s (y/N): %s' "$WHITE" "$1" "$NC"
-    read -r answer || return 1
+    read_input answer || return 1
     [[ "$answer" == [yY] || "$answer" == [yY][eE][sS] ]]
 }
 
@@ -252,7 +261,11 @@ find_httpx() {
 check_dependencies() {
     local problems=() fatal=0 p
     locate_tools
-    tool_works subfinder -version || { problems+=("subfinder: $TOOL_PROBLEM"); fatal=1; }
+    SUBFINDER_PROBLEM=""
+    if ! tool_works subfinder -version; then
+        SUBFINDER_PROBLEM="$TOOL_PROBLEM"
+        problems+=("subfinder: $TOOL_PROBLEM -> phase 1 will only check the domain you typed")
+    fi
     tool_works dnsx -version      || { problems+=("dnsx: $TOOL_PROBLEM"); fatal=1; }
     find_httpx                    || problems+=("httpx: $HTTPX_PROBLEM -> phase 3 will be skipped")
     NMAP_PROBLEM=""
@@ -267,7 +280,7 @@ check_dependencies() {
     echo ""
     for p in "${problems[@]}"; do warn "$p"; done
     if (( fatal )); then
-        err "NetWriath cannot run without subfinder and dnsx."
+        err "NetWriath cannot run without dnsx."
         return 1
     fi
     (( ASSUME_YES )) && return 0
@@ -314,6 +327,12 @@ on_interrupt() {
 phase_discovery() {
     local raw="$TEMP_DIR/subfinder.txt" re rc n
     phase_start 1 "Discovery"
+    if [[ -n "$SUBFINDER_PROBLEM" ]]; then
+        printf '%s\n' "$TARGET_DOMAIN" > "$RAW_DIR/subdomains.txt"
+        phase_skip "(subfinder unavailable, see warnings: only $TARGET_DOMAIN is checked)"
+        NOTES+=("Phase 1 skipped: subfinder $SUBFINDER_PROBLEM. Only $TARGET_DOMAIN was checked.")
+        return
+    fi
     subfinder -d "$TARGET_DOMAIN" -silent > "$raw" 2> "$LOG_DIR/subfinder.log"; rc=$?
     re="(^|\\.)${TARGET_DOMAIN//./\\.}\$"
     {
@@ -436,7 +455,7 @@ phase_ports() {
         sed 's/^/        /' "$scan_list"
         (( CDN_SKIPPED > 0 )) && info "$CDN_SKIPPED IP(s) behind a CDN skipped (use --include-cdn to scan them)."
         printf '%s    Do you have written authorization to scan them? Type "yes" to continue: %s' "$WHITE" "$NC"
-        read -r answer
+        read_input answer
         if [[ "$answer" != "yes" ]]; then
             PORT_SCAN_DESC="skipped (not authorized)"
             printf '    '; phase_skip "(authorization not confirmed)"; return
@@ -596,7 +615,8 @@ usage() {
     cat <<EOF
 NetWriath v$VERSION - automated asset discovery for authorized engagements
 
-Usage: bash netwriath.sh [options] [domain]
+Usage: netwriath [options] [domain]
+       bash netwriath.sh [options] [domain]   (without the command installed)
 
 Without a domain, the interactive menu opens.
 
@@ -609,9 +629,9 @@ Options:
   -V, --version      show the version
 
 Examples:
-  bash netwriath.sh example.com
-  bash netwriath.sh --no-ports example.com
-  bash netwriath.sh -y --full-ports scanme.nmap.org
+  netwriath example.com
+  netwriath --no-ports example.com
+  netwriath -y --full-ports scanme.nmap.org
 EOF
 }
 
@@ -639,16 +659,16 @@ menu() {
         printf ' %s:: [3] Disconnect%s\n' "$RED" "$NC"
         printf ' %s-------------------------------------------------------------------------%s\n\n' "$RED" "$NC"
         printf ' %sOption > %s' "$WHITE" "$NC"
-        read -r option || exit 0
+        read_input option || exit 0
 
         case "$option" in
             1)
                 printf '\n %sTarget > %s' "$WHITE" "$NC"
-                read -r target || exit 0
+                read_input target || exit 0
                 [[ -z "$target" ]] && continue
                 run_target "$target"
                 printf '\n %sPress Enter to return...%s' "$WHITE" "$NC"
-                read -r _
+                read_input _
                 ;;
             2)
                 echo ""
